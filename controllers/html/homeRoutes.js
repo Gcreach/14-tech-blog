@@ -1,8 +1,9 @@
 const router = require('express').Router();
 const sequelize = require('../../config/connection');
 const {Post, User, Comment} = require('../../models');
+const withAuth = require('../utils/auth');
 
-router.get('/', async (req, res) => {
+router.get('/', withAuth, async (req, res) => {
     try {
         const posts = await Post.findall({
     include: [{model: User, attributes: ['username'] }],
@@ -16,8 +17,11 @@ router.get('/', async (req, res) => {
     },
         });
         const serializedPosts = posts.map((post) => this.post.get({ plain: true }));
-    //TODO: modify response with actual view template
-    res.status(200).send('<h1>HOMEPAGE</h1><h2>Render the homepage view along with all posts retrieved.</h2>');
+    res.render('homepage', {
+        users,
+        // Pass the logged in flag to the template
+        logged_in: req.session.logged_in,
+      });
     }
     catch (error) {
         console.log(error)
@@ -46,8 +50,12 @@ router.get('/post/:id', async (req, res) => {
 
     post = post.get({ plain: true});
 
-    //TODO: modify response with actual view template
-    res.status(200).send('<h1>HOMEPAGE</h1><h2>Render the  view for a single post retrieved.</h2>');
+    
+    res.render('homepage', {
+        users,
+        // Pass the logged in flag to the template
+        logged_in: req.session.logged_in,
+      });
     }
     catch (error) {
         console.log(error)
